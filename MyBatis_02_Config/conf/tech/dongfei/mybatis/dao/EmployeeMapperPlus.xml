@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="tech.dongfei.mybatis.dao.EmployeeMapperPlus">
+
+    <!--
+        id 定义主键封装
+        result 定义普通列封装
+    -->
+    <resultMap id="MyEmp" type="tech.dongfei.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="email" property="email"/>
+        <result column="gender" property="gender"/>
+    </resultMap>
+
+    <resultMap id="MyDifEmp" type="tech.dongfei.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <result column="did" property="department.id"/>
+        <result column="dept_name" property="department.departmentName"/>
+    </resultMap>
+
+    <resultMap id="MyDifEmp2" type="tech.dongfei.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <association property="department" javaType="tech.dongfei.mybatis.bean.Department">
+            <id column="did" property="id"/>
+            <result column="dept_name" property="departmentName"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="MyEmpByStep" type="tech.dongfei.mybatis.bean.Employee">
+        <id column="id" property="id"/>
+        <result column="last_name" property="lastName"/>
+        <result column="gender" property="gender"/>
+        <result column="email" property="email"/>
+        <association property="department"
+                     select="tech.dongfei.mybatis.dao.DepartmentMapper.getDeptById"
+                     column="d_id">
+        </association>
+    </resultMap>
+
+    <!--    public Employee getEmpById(Integer id);-->
+    <select id="getEmpById" resultMap="MyEmp">
+        select * from tb1_employee where id=#{id}
+    </select>
+
+    <!--    public Employee getEmpAndDept(Integer id);-->
+    <select id="getEmpAndDept" resultMap="MyDifEmp2">
+        select e.id id,e.last_name last_name,e.gender gender,e.email email,e.d_id, d_id,d.id did,d.dept_name dept_name
+        from tb1_employee e,tb1_dept d
+        where e.d_id=d.id and e.id=#{id}
+    </select>
+
+    <!--    public Employee getEmpByIdStep(Integer id);-->
+    <select id="getEmpByIdStep" resultMap="MyEmpByStep">
+        select * from tb1_employee where id = #{id}
+    </select>
+
+</mapper>
