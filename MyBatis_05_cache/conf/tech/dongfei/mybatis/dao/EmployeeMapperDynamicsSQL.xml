@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tech.dongfei.mybatis.dao.EmployeeMapperDynamicsSQL">
+    <!--    public List<Employee> getEmpsByConditionIf(Employee employee);-->
+    <select id="getEmpsByConditionIf" resultType="tech.dongfei.mybatis.bean.Employee">
+        select * from tb1_employee
+        <where>
+            <if test="id!=null">id=#{id}</if>
+            <if test="lastName!=null and lastName!=''">and last_name like #{lastName}</if>
+            <if test="email!=null and email.trim()!=null">and email=#{email}</if>
+            <if test="gender=='M' or gender=='F'">and gender=#{gender}</if>
+        </where>
+    </select>
+
+    <!--    public List<Employee> getEmpsByConditionTrim(Employee employee);-->
+    <select id="getEmpsByConditionTrim" resultType="tech.dongfei.mybatis.bean.Employee">
+        select * from tb1_employee
+        <trim prefix="where" suffixOverrides="and">
+            <if test="id!=null">id=#{id} and</if>
+            <if test="lastName!=null and lastName!=''">last_name like #{lastName} and</if>
+            <if test="email!=null and email.trim()!=null">email=#{email} and</if>
+            <if test="gender=='M' or gender=='F'">gender=#{gender}</if>
+        </trim>
+    </select>
+
+    <!--    public List<Employee> getEmpsByConditionChoose(Employee employee);-->
+    <select id="getEmpsByConditionChoose" resultType="tech.dongfei.mybatis.bean.Employee">
+        select * from tb1_employee
+        <where>
+            <choose>
+                <when test="id!=null">id=#{id}</when>
+                <when test="lastName!=null">last_name like #{lastName}</when>
+                <when test="email!=null">email=#{email}</when>
+                <otherwise>gender='F'</otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!--    public void updateEmp(Employee employee);-->
+    <update id="updateEmp">
+        update tb1_employee
+        <set>
+            <if test="lastName!=null">last_name=#{lastName},</if>
+            <if test="email!=null">email=#{email},</if>
+            <if test="gender!=null">gender=#{gender}</if>
+            <where>id=#{id}</where>
+        </set>
+    </update>
+
+    <!--    public void getEmpsByConditionForeach(List<Integer> ids);-->
+    <select id="getEmpsByConditionForeach" resultType="tech.dongfei.mybatis.bean.Employee">
+        select * from tb1_employee where id in
+        <foreach collection="ids" item="item_id" separator="," open="(" close=")">
+            #{item_id}
+        </foreach>
+    </select>
+
+    <!--    public void addEmps(@Param("emps")List<Employee> emps);-->
+    <insert id="addEmps">
+        insert into tb1_employee(<include refid="insertColume"/>) values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.lastName},#{emp.email},#{emp.gender},#{emp.department.id})
+        </foreach>
+    </insert>
+
+    <!--    public List<Employee> getEmpsTestInnerParameter(Employee employee);-->
+    <select id="getEmpsTestInnerParameter" resultType="tech.dongfei.mybatis.bean.Employee">
+        <bind name="_lastName" value="'%'+lastName+'%'"/>
+        <if test="_databaseId=='mysql' and _parameter!=null">
+            select * from tb1_employee
+            <where>
+                and last_name like #{_lastName}
+            </where>
+        </if>
+    </select>
+
+    <sql id="insertColume">
+        last_name,email,gender,d_id
+    </sql>
+</mapper>
